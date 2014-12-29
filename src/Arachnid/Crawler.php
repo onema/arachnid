@@ -46,6 +46,11 @@ class Crawler
     protected $links;
 
     /**
+     * @var \Goutte\Client
+     */
+    protected $client;
+
+    /**
      * Constructor
      * @param string $baseUrl
      * @param int    $maxDepth
@@ -88,6 +93,14 @@ class Crawler
     }
 
     /**
+     * @param Client $client
+     */
+    public function setClient(Client $client)
+    {
+        $this->client = $client;
+    }
+
+    /**
      * Crawl single URL
      * @param string $url
      * @param int    $depth
@@ -95,17 +108,19 @@ class Crawler
     protected function traverseSingle($url, $depth)
     {
         try {
-            $client = new Client();
-            $client->followRedirects();
+            if (!isset($this->client)) {
+                $this->client = new Client();
+                $this->client->followRedirects();
+            }
 
-            $crawler = $client->request('GET', $url);
-            $statusCode = $client->getResponse()->getStatus();
+            $crawler = $this->client->request('GET', $url);
+            $statusCode = $this->client->getResponse()->getStatus();
 
             $hash = $this->getPathFromUrl($url);
             $this->links[$hash]['status_code'] = $statusCode;
 
             if ($statusCode === 200) {
-                $content_type = $client->getResponse()->getHeader('Content-Type');
+                $content_type = $this->client->getResponse()->getHeader('Content-Type');
 
                 if (strpos($content_type, 'text/html') !== false) { //traverse children in case the response in HTML document only
                     $this->extractTitleInfo($crawler, $hash);
