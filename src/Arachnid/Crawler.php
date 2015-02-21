@@ -120,9 +120,9 @@ class Crawler
             $this->links[$hash]['status_code'] = $statusCode;
 
             if ($statusCode === 200) {
-                $content_type = $this->client->getResponse()->getHeader('Content-Type');
+                $contentType = $this->client->getResponse()->getHeader('Content-Type');
 
-                if (strpos($content_type, 'text/html') !== false) { //traverse children in case the response in HTML document only
+                if (strpos($contentType, 'text/html') !== false) { //traverse children in case the response in HTML document only
                     $this->extractTitleInfo($crawler, $hash);
 
                     $childLinks = array();
